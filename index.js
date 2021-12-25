@@ -69,6 +69,12 @@ async function run() {
       res.json(result);
     });
 
+    // POST Product API
+    app.post('/products', async (req, res) => {
+      const product = req.body;
+      const result = await productsCollection.insertOne(product);
+      res.json(result);
+    });
     // get products
     app.get('/products', async (req, res) => {
       const cursor = productsCollection.find({});
