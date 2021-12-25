@@ -24,6 +24,7 @@ async function run() {
     console.log('database connected');
     const database = client.db('g-store');
     const usersCollection = database.collection('users');
+    const productsCollection = database.collection('products');
 
     // POST API for users
     app.post('/users', async (req, res) => {
@@ -66,6 +67,13 @@ async function run() {
       const updateDoc = { $set: { role: 'admin' } };
       const result = await usersCollection.updateOne(filter, updateDoc);
       res.json(result);
+    });
+
+    // get products
+    app.get('/products', async (req, res) => {
+      const cursor = productsCollection.find({});
+      const products = await cursor.toArray();
+      res.json(products);
     });
   } finally {
     // await client.close();
