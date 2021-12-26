@@ -25,6 +25,7 @@ async function run() {
     const database = client.db('g-store');
     const usersCollection = database.collection('users');
     const productsCollection = database.collection('products');
+    const ordersCollection = database.collection('orders');
 
     // POST API for users
     app.post('/users', async (req, res) => {
@@ -80,6 +81,60 @@ async function run() {
       const cursor = productsCollection.find({});
       const products = await cursor.toArray();
       res.json(products);
+    });
+    // get specific product
+    app.get('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const product = await productsCollection.findOne(query);
+      res.send(product);
+    });
+
+    // POST order API
+    app.post('/orders', async (req, res) => {
+      const product = req.body;
+      console.log(product);
+      const result = await ordersCollection.insertOne(product);
+      res.json(result);
+    });
+
+    // GET MY ORDER
+    app.get('/myorders', async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = ordersCollection.find(query);
+      const orders = await cursor.toArray();
+
+      res.send(orders);
+    });
+    // get products
+    app.get('/orders', async (req, res) => {
+      const cursor = ordersCollection.find({});
+      const products = await cursor.toArray();
+      res.json(products);
+    });
+
+    // DELETE ORDERS
+    app.delete('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.deleteOne(query);
+      res.json(result);
+    });
+
+    // UPDATE status API
+    app.put('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      // const updatedOrder = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: 'shifted',
+        },
+      };
+      const result = await ordersCollection.updateOne(filter, updateDoc);
+      console.log(result)
+      res.send(result);
     });
   } finally {
     // await client.close();
